@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>HelloMap</title>
+<link rel="stylesheet" href="/style.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+</head>
+
+<body>
+
+    <h1>Hello!Map</h1>
+
+
+<!-- Map表示とピン -->
+<div id="top_container">
+    <div id="map_container">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3241.3113028003045!2d139.69851222848422!3d35.66933607490499!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sja!2sjp!4v1669270827836!5m2!1sja!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" width="100%" height="100%">
+        </iframe> 
+        </div>
+
+    
+
+    <div id="accounts_container">
+        The accounts you can talk around your area now / 範囲内でいま喋れる人
+        <ul>
+            <li>Mike</li>
+            <li>Kate</li>
+
+        </ul>
+    </div>
+</div>
+
+<div id="bottom_container">
+    <div id="message_container"></div>
+    <div id="chat_container">
+        <input type="text" name="username" id="username" value="Mike">
+        <textarea id="message"></textarea>
+        <button id="send">送信</button>
+    </div>
+
+
+</div>
+
+<!-- <div class="container"> -->
+    <!-- <button class="ring ping"></button> <a href="#"></a> -->
+    
+    <!-- <div class="ring small-ping"></div> <a href="#"></a> -->
+<!-- </div> -->
+
+
+
+<!--** 以下Firebase **-->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved } 
+    from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    //　here is the area for key of firebase
+   
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, "dev245");
+
+
+
+    // 送信処理を記述
+        $('#send').on('click', function(){
+    // id="uname" の場所を取得
+        const username = $('#username').val();
+    // id="text" の場所を取得
+        const message = $('#message').val();
+    // console.log(text, 'データの取得の仕方で表示が異なるのをチェックしましょう')
+
+
+            // 取得できているか表示の確認をしましょう！
+            // これ必須！ 表示の確認ができて方はalertをコメントアウトしておきましょう
+            // alert(uname + text);
+
+
+            // データの塊を作ります
+            // msg という名前で塊を作ります
+            // unameという鍵の名前
+            // textというカギの名前
+            // 作成したデータの塊をfirebaseに送信をします⇨つまりこれが保存になります
+            var today = new Date();
+
+            const msg = {
+                username: username,
+                message: message,
+                today: today.toString(),
+                test: 'test'
+            }
+
+            // firebaseに送る準備をしていることになります
+            const newPostRef = push(dbRef) //データを送信できる準備
+            set(newPostRef, msg); // firebaseの登録できる場所に保存するイメージです
+
+            // 送信後に、入力欄を空にしましょう
+            //$('#username').val("");
+            $('#message').val("");
+
+
+});
+
+            // 受信処理を記述
+            onChildAdded(dbRef, function (data) {
+            // ここからが受信処理が始まります
+
+            // 登録されたデータを取得します
+            const msg = data.val();
+            console.log(msg, '取得したデータの塊')
+            const key = data.key;
+            console.log(key, 'データの塊にアクセス')
+
+            let h;
+
+            // es6のテンプレートリテラル
+            if(username.value == msg.username){
+                h = `
+                <div class="msg owner">
+                   
+                    <p>${msg.username}</p>
+                    <p>${msg.message}</p>
+                    <p>${msg.today}</p>
+                    
+                </div>    
+            `;
+
+            }else {
+                h = `
+                <div class="msg friend">
+                   
+                    <p>${msg.username}</p>
+                    <p>${msg.message}</p>
+                    <p>${msg.today}</p>
+                    
+                </div>    
+            `;
+
+            }
+            // htmlに埋め込み
+            // append();というjquery
+            $("#message_container").append(h);
+        })
+
+
+
+
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
